@@ -1,6 +1,4 @@
 node_modules
 dist
 .env
-
-# Firebase Admin SDK key file (you will add your json here)
 firebase-adminsdk.json
