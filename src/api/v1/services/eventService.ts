@@ -1,17 +1,31 @@
 import { eventRepository } from "../repositories/eventRepository";
 import { CreateEventInput, Event } from "../models/eventModel";
+import { db } from "../../../config/firebaseConfig";
 
 const nowISO = () => new Date().toISOString();
 
-const makeId = () => {
-  const num = Math.floor(100000 + Math.random() * 900000);
-  return `evt_${num}`;
+// Firestore counter — WILL NOT RESET
+const getNextId = async (): Promise<string> => {
+  const counterRef = db.collection("counters").doc("events");
+
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(counterRef);
+
+    const current = snap.exists ? snap.data()?.value : 0;
+    const next = current + 1;
+
+    tx.set(counterRef, { value: next });
+
+    return String(next);
+  });
 };
 
 export const eventService = {
   async createEvent(input: CreateEventInput): Promise<Event> {
+    const id = await getNextId();
+
     const event: Event = {
-      id: makeId(),
+      id,
       name: input.name,
       date: input.date,
       capacity: input.capacity,

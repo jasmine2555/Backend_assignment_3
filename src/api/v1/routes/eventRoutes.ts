@@ -5,17 +5,17 @@ import { eventCreateSchema } from "../validation/eventCreateSchema";
 
 const router = Router();
 
-// Health
+// ✅ Health
 router.get("/health", eventController.health);
 
-// Create (demo validation rules go here)
+// ✅ Create
 router.post(
   "/events",
   validateRequest({ body: eventCreateSchema }),
   eventController.create
 );
 
-// CRUD
+// ✅ CRUD
 router.get("/events", eventController.getAll);
 router.get("/events/:id", eventController.getById);
 router.put("/events/:id", eventController.update);

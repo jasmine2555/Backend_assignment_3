@@ -1,11 +1,9 @@
 import express from "express";
-import cors from "cors";
 import routes from "./api/v1/routes";
 import { HTTP_STATUS } from "./constants/httpConstants";
 
 export const app = express();
 
-app.use(cors());
 app.use(express.json());
 
 app.use("/api/v1", routes);
