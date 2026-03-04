@@ -1,16 +1,17 @@
 import { db } from "../../../config/firebaseConfig";
 import { Event } from "../models/eventModel";
 
-const COLLECTION = "events"; // or your studentId collection na
+const COLLECTION = "events";
 
 export const eventRepository = {
   async create(event: Event): Promise<Event> {
-    await db.collection(COLLECTION).doc(event.id).set(event); // 
+    // Use the id coming from eventService (1,2,3...)
+    await db.collection(COLLECTION).doc(event.id).set(event);
     return event;
   },
 
   async getAll(): Promise<Event[]> {
-    const snap = await db.collection(COLLECTION).get();
+    const snap = await db.collection(COLLECTION).orderBy("id").get();
     return snap.docs.map((d) => d.data() as Event);
   },
 
@@ -21,12 +22,12 @@ export const eventRepository = {
 
   async update(id: string, updates: Partial<Event>): Promise<Event | null> {
     const ref = db.collection(COLLECTION).doc(id);
-    const before = await ref.get();
-    if (!before.exists) return null;
+    const doc = await ref.get();
+    if (!doc.exists) return null;
 
-    await ref.update(updates);
-    const after = await ref.get();
-    return after.data() as Event;
+    await ref.set(updates, { merge: true });
+    const updated = await ref.get();
+    return updated.data() as Event;
   },
 
   async remove(id: string): Promise<boolean> {

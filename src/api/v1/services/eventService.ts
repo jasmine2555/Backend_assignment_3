@@ -4,25 +4,22 @@ import { db } from "../../../config/firebaseConfig";
 
 const nowISO = () => new Date().toISOString();
 
-// Firestore counter — WILL NOT RESET
 const getNextId = async (): Promise<string> => {
   const counterRef = db.collection("counters").doc("events");
 
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(counterRef);
-
-    const current = snap.exists ? snap.data()?.value : 0;
+    const current = snap.exists ? (snap.data()?.value as number) : 0;
     const next = current + 1;
-
-    tx.set(counterRef, { value: next });
-
-    return String(next);
+    tx.set(counterRef, { value: next }, { merge: true });
+    return String(next); // "1", "2", "3"
   });
 };
 
 export const eventService = {
   async createEvent(input: CreateEventInput): Promise<Event> {
     const id = await getNextId();
+    const now = nowISO();
 
     const event: Event = {
       id,
@@ -32,8 +29,8 @@ export const eventService = {
       category: input.category,
       registrationCount: input.registrationCount ?? 0,
       status: input.status ?? "active",
-      createdAt: nowISO(),
-      updatedAt: nowISO(),
+      createdAt: now,
+      updatedAt: now,
     };
 
     return eventRepository.create(event);

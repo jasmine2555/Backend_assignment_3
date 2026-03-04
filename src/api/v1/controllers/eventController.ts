@@ -1,86 +1,30 @@
 import { Request, Response } from "express";
-import { HTTP_STATUS } from "../../../constants/httpConstants";
 import { eventService } from "../services/eventService";
 
-type EventParams = {
-  id: string;
+export const createEvent = async (req: Request, res: Response) => {
+  const event = await eventService.createEvent(req.body);
+  return res.status(201).json({ message: "Event created", data: event });
 };
 
-export const eventController = {
-  // Health check
-  health(req: Request, res: Response) {
-    return res.status(HTTP_STATUS.OK).json({
-      message: "Server is running",
-    });
-  },
+export const getAllEvents = async (req: Request, res: Response) => {
+  const events = await eventService.getAllEvents();
+  return res.status(200).json({ message: "Events fetched", data: events });
+};
 
-  // Create
-  async create(req: Request, res: Response) {
-    const created = await eventService.createEvent(req.body);
+export const getEventById = async (req: Request, res: Response) => {
+  const event = await eventService.getEventById(req.params.id);
+  if (!event) return res.status(404).json({ message: "Event not found" });
+  return res.status(200).json({ message: "Event fetched", data: event });
+};
 
-    return res.status(HTTP_STATUS.CREATED).json({
-      message: "Event created",
-      data: created,
-    });
-  },
+export const updateEvent = async (req: Request, res: Response) => {
+  const updated = await eventService.updateEvent(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ message: "Event not found" });
+  return res.status(200).json({ message: "Event updated", data: updated });
+};
 
-  // Get All
-  async getAll(req: Request, res: Response) {
-    const events = await eventService.getAllEvents();
-
-    return res.status(HTTP_STATUS.OK).json({
-      message: "Events fetched",
-      data: events,
-    });
-  },
-
-  // Get By ID
-  async getById(req: Request<EventParams>, res: Response) {
-    const event = await eventService.getEventById(req.params.id);
-
-    if (!event) {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: "Event not found" });
-    }
-
-    return res.status(HTTP_STATUS.OK).json({
-      message: "Event fetched",
-      data: event,
-    });
-  },
-
-  // Update
-  async update(req: Request<EventParams>, res: Response) {
-    const updated = await eventService.updateEvent(
-      req.params.id,
-      req.body
-    );
-
-    if (!updated) {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: "Event not found" });
-    }
-
-    return res.status(HTTP_STATUS.OK).json({
-      message: "Event updated",
-      data: updated,
-    });
-  },
-
-  // Delete
-  async remove(req: Request<EventParams>, res: Response) {
-    const deleted = await eventService.deleteEvent(req.params.id);
-
-    if (!deleted) {
-      return res
-        .status(HTTP_STATUS.NOT_FOUND)
-        .json({ message: "Event not found" });
-    }
-
-    return res.status(HTTP_STATUS.OK).json({
-      message: "Event deleted",
-    });
-  },
+export const deleteEvent = async (req: Request, res: Response) => {
+  const ok = await eventService.deleteEvent(req.params.id);
+  if (!ok) return res.status(404).json({ message: "Event not found" });
+  return res.status(204).send();
 };

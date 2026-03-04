@@ -1,22 +1,17 @@
-export type EventStatus = "active" | "cancelled" | "completed";
-
-export interface Event {
-  id: string;
-  name: string;
-  date: string; // ISO string
-  capacity: number;
-  registrationCount: number;
-  status: EventStatus;
-  category: string;
-  createdAt: string;
-  updatedAt: string;
-}
+export type EventStatus = "active" | "cancelled";
+export type EventCategory = "conference" | "workshop" | "music" | "career" | "general";
 
 export interface CreateEventInput {
   name: string;
   date: string;
   capacity: number;
-  category: string;
+  category: EventCategory;
   registrationCount?: number;
   status?: EventStatus;
+}
+
+export interface Event extends Required<CreateEventInput> {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -1,24 +1,21 @@
 import { Router } from "express";
-import { eventController } from "../controllers/eventController";
-import { validateRequest } from "../middleware/validateRequest";
-import { eventCreateSchema } from "../validation/eventCreateSchema";
+import {
+  createEvent,
+  getAllEvents,
+  getEventById,
+  updateEvent,
+  deleteEvent,
+} from "../controllers/eventController";
+
+ import { validateRequest } from "../middleware/validateRequest";
+import { createEventSchema } from "../validation/eventCreateSchema";
 
 const router = Router();
 
-// ✅ Health
-router.get("/health", eventController.health);
-
-// ✅ Create
-router.post(
-  "/events",
-  validateRequest({ body: eventCreateSchema }),
-  eventController.create
-);
-
-// ✅ CRUD
-router.get("/events", eventController.getAll);
-router.get("/events/:id", eventController.getById);
-router.put("/events/:id", eventController.update);
-router.delete("/events/:id", eventController.remove);
+router.post("/", validateRequest({ body: createEventSchema }), createEvent);
+router.get("/", getAllEvents);
+router.get("/:id", getEventById);
+router.put("/:id", updateEvent);
+router.delete("/:id", deleteEvent);
 
 export default router;
